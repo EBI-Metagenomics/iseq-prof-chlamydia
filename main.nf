@@ -247,7 +247,7 @@ process create_hmmdb_solution_space {
     ntrues = min(len(true_profiles), $params.maxTrueProfiles)
     true_profiles = list(random.choice(list(true_profiles), size=ntrues, replace=False))
 
-    all_falses = set(meta["ACC"].tolist()) - true_profiles
+    all_falses = set(meta["ACC"].tolist()) - set(true_profiles)
     nfalses = min(len(all_falses), $params.maxFalseProfiles)
     false_profiles = list(random.choice(list(all_falses), size=nfalses, replace=False))
 
