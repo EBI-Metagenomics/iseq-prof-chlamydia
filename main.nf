@@ -74,7 +74,7 @@ process download_pfam_hmm {
 
     script:
     """
-    curl -s $hmmfile | gunzip -c > Pfam-A.hmm
+    gunzip -c $hmmfile > Pfam-A.hmm
     """
 }
 
