@@ -348,7 +348,8 @@ process prokka_targets {
     clusterOptions "-g $params.groupRoot/prokka_targets -R 'rusage[scratch=${task.attempt * 5120}]'"
     errorStrategy "retry"
     maxRetries 4
-    memory { 4.GB * task.attempt }
+    memory { 6.GB * task.attempt }
+    cpus "${ Math.min(8, params.maxCPUs as int) }"
     publishDir params.outputDir, mode:"copy", saveAs: { name -> "prokka_targets/$name" }
     scratch true
     stageInMode "copy"
