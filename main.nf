@@ -41,10 +41,10 @@ process rename_assemblies {
     clusterOptions "-g $params.groupRoot/rename_assemblies"
 
     input:
-    path assembly_pre from assembly_pre1_ch
+    file assembly_pre name "input.fasta" from assembly_pre1_ch
 
     output:
-    path "assembly.fasta" into assembly_pre2_ch
+    file "assembly.fasta" into assembly_pre2_ch
 
     script:
     """
@@ -65,10 +65,10 @@ process filter_assemblies {
     publishDir params.outputDir, mode:"copy", saveAs: { name -> "assembly/$name" }
 
     input:
-    path assembly_pre from assembly_pre2_ch
+    file assembly_pre name "input.fasta" from assembly_pre2_ch
 
     output:
-    path "assembly.fasta" into assembly_ch
+    file "assembly.fasta" into assembly_ch
 
     script:
     """
