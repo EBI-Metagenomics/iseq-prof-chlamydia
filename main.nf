@@ -15,8 +15,9 @@ params.assemblyFile = "$frozenDir/14-2711_unicycler.fasta"
 params.targetsFile = "$frozenDir/14-2711_R47.fastq"
 params.maxCPUs = 128
 params.iseqScanAssembly = "no"
+params.filterAssemblies = ".*"
 
-assembly_pre_ch = Channel.fromPath(params.assemblyFile).collect()
+assembly_pre1_ch = Channel.fromPath(params.assemblyFile).collect()
 hmmfile_ch = Channel.fromPath(params.hmmFile).collect()
 targets_ch = Channel.fromPath(params.targetsFile).collect()
 
@@ -38,10 +39,33 @@ process save_params {
 
 process rename_assemblies {
     clusterOptions "-g $params.groupRoot/rename_assemblies"
+
+    input:
+    path assembly_pre from assembly_pre1_ch
+
+    output:
+    path "assembly.fasta" into assembly_pre2_ch
+
+    script:
+    """
+    #!/usr/bin/env python
+
+    from fasta_reader import read_fasta, write_fasta
+
+    id_map = {"1": "consensus1", "2": "consensus2"}
+    with write_fasta("assembly.fasta", 70) as writer:
+        for item in read_fasta("$assembly_pre"):
+            defline = f"{id_map[item.id]} {item.desc}"
+            writer.write_item(defline, item.sequence)
+    """
+}
+
+process filter_assemblies {
+    clusterOptions "-g $params.groupRoot/filter_assemblies"
     publishDir params.outputDir, mode:"copy", saveAs: { name -> "assembly/$name" }
 
     input:
-    path assembly_pre from assembly_pre_ch
+    path assembly_pre from assembly_pre2_ch
 
     output:
     path "assembly.fasta" into assembly_ch
@@ -50,14 +74,16 @@ process rename_assemblies {
     """
     #!/usr/bin/env python
 
-    from pathlib import Path
+    import re
 
     from fasta_reader import read_fasta, write_fasta
 
-    id_map = {"1": "consensus1", "2": "consensus2"}
     with write_fasta("assembly.fasta", 70) as writer:
         for item in read_fasta("$assembly_pre"):
-            defline = f"{id_map[item.id]} {item.desc}"
+            m = re.match("$params.filterAssemblies", item.id)
+            if m is None:
+                continue
+            defline = f"{item.id} {item.desc}"
             writer.write_item(defline, item.sequence)
     """
 }
