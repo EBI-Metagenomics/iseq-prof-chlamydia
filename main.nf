@@ -236,7 +236,7 @@ process iseq_scan_assembly {
 }
 
 process create_hmmdb_solution_space {
-    clusterOptions "-g $params.groupRoot/create_hmmdb_solution_space -R 'rusage[scratch=5120]'"
+    clusterOptions "-g $params.groupRoot/create_hmmdb_solution_space"
     memory "16 GB"
     publishDir params.outputDir, mode:"copy", saveAs: { name -> "$name" }
 
