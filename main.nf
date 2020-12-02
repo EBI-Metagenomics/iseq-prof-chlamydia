@@ -25,13 +25,13 @@ process save_params {
     publishDir params.outputDir, mode:"copy"
 
     output:
-    path "commandLine.txt"
+    path "command.txt"
     path "params.txt"
 
     script:
     params_cmd = params.all()
     """
-    echo "$workflow.commandLine" > commandLine.txt
+    echo "$workflow.commandLine" > command.txt
     echo "$params_cmd" > params.txt
     """
 }
