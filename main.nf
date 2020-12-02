@@ -21,7 +21,7 @@ hmmfile_ch = Channel.fromPath(params.hmmFile).collect()
 targets_ch = Channel.fromPath(params.targetsFile).collect()
 
 process save_params {
-    clusterOptions "-g $groupRoot/save_params"
+    clusterOptions "-g $params.groupRoot/save_params"
     publishDir params.outputDir, mode:"copy"
 
     output:
@@ -37,7 +37,7 @@ process save_params {
 }
 
 process rename_assemblies {
-    clusterOptions "-g $groupRoot/rename_assemblies"
+    clusterOptions "-g $params.groupRoot/rename_assemblies"
     publishDir params.outputDir, mode:"copy", saveAs: { name -> "assembly/$name" }
 
     input:
@@ -63,7 +63,7 @@ process rename_assemblies {
 }
 
 process download_pfam_hmm {
-    clusterOptions "-g $groupRoot/download_pfam_hmm"
+    clusterOptions "-g $params.groupRoot/download_pfam_hmm"
     storeDir "$params.storageDir/pfam"
 
     input:
@@ -79,7 +79,7 @@ process download_pfam_hmm {
 }
 
 process press_pfam_hmmfile {
-    clusterOptions "-g $groupRoot/press_pfam_hmmfile"
+    clusterOptions "-g $params.groupRoot/press_pfam_hmmfile"
     storeDir "$params.storageDir/pfam"
 
     input:
@@ -100,7 +100,7 @@ process press_pfam_hmmfile {
 }
 
 process pfam_metafile {
-    clusterOptions "-g $groupRoot/pfam_metafile"
+    clusterOptions "-g $params.groupRoot/pfam_metafile"
     storeDir "$params.storageDir/pfam"
 
     input:
@@ -121,7 +121,7 @@ process pfam_metafile {
 }
 
 process prokka_assembly {
-    clusterOptions "-g $groupRoot/prokka_assembly"
+    clusterOptions "-g $params.groupRoot/prokka_assembly"
     cpus "${ Math.min(2, params.maxCPUs as int) }"
     memory "8 GB"
     publishDir params.outputDir, mode:"copy", saveAs: { name -> "prokka_assembly/$name" }
@@ -150,7 +150,7 @@ process prokka_assembly {
 }
 
 process hmmscan_assembly {
-    clusterOptions "-g $groupRoot/hmmscan_assembly -R 'rusage[scratch=${task.attempt * 5120}]'"
+    clusterOptions "-g $params.groupRoot/hmmscan_assembly -R 'rusage[scratch=${task.attempt * 5120}]'"
     cpus "${ Math.min(4, params.maxCPUs as int) }"
     memory "8 GB"
     publishDir params.outputDir, mode:"copy", saveAs: { name -> "hmmscan_assembly/$name" }
@@ -177,7 +177,7 @@ process hmmscan_assembly {
 }
 
 process iseq_scan_assembly {
-    clusterOptions "-g $groupRoot/iseq_scan_assembly -R 'rusage[scratch=5120]'"
+    clusterOptions "-g $params.groupRoot/iseq_scan_assembly -R 'rusage[scratch=5120]'"
     memory "8 GB"
     publishDir params.outputDir, mode:"copy", saveAs: { name -> "iseq_scan_assembly/$name" }
     scratch true
@@ -210,7 +210,7 @@ process iseq_scan_assembly {
 }
 
 process create_hmmdb_solution_space {
-    clusterOptions "-g $groupRoot/create_hmmdb_solution_space -R 'rusage[scratch=5120]'"
+    clusterOptions "-g $params.groupRoot/create_hmmdb_solution_space -R 'rusage[scratch=5120]'"
     publishDir params.outputDir, mode:"copy", saveAs: { name -> "$name" }
 
     input:
@@ -259,7 +259,7 @@ process create_hmmdb_solution_space {
 }
 
 process press_db_hmmfile {
-    clusterOptions "-g $groupRoot/press_db_hmmfile"
+    clusterOptions "-g $params.groupRoot/press_db_hmmfile"
     publishDir params.outputDir, mode:"copy", saveAs: { name -> "$name" }
 
     input:
@@ -280,7 +280,7 @@ process press_db_hmmfile {
 }
 
 process alignment {
-    clusterOptions "-g $groupRoot/alignment"
+    clusterOptions "-g $params.groupRoot/alignment"
     memory "6 GB"
     cpus "${ Math.min(4, params.maxCPUs as int) }"
     publishDir params.outputDir, mode:"copy", saveAs: { name -> "alignment/$name" }
@@ -312,7 +312,7 @@ targets_ch1
     .set { targets_chunk_ch }
 
 process iseq_scan_targets {
-    clusterOptions "-g $groupRoot/iseq_scan_targets -R 'rusage[scratch=${task.attempt * 5120}]'"
+    clusterOptions "-g $params.groupRoot/iseq_scan_targets -R 'rusage[scratch=${task.attempt * 5120}]'"
     errorStrategy "retry"
     maxRetries 4
     memory { 8.GB * task.attempt }
@@ -345,7 +345,7 @@ process iseq_scan_targets {
 }
 
 process prokka_targets {
-    clusterOptions "-g $groupRoot/prokka_targets -R 'rusage[scratch=${task.attempt * 5120}]'"
+    clusterOptions "-g $params.groupRoot/prokka_targets -R 'rusage[scratch=${task.attempt * 5120}]'"
     errorStrategy "retry"
     maxRetries 4
     memory { 4.GB * task.attempt }
@@ -379,7 +379,7 @@ process prokka_targets {
 targets_faa_ch.set{ amino_targets_ch }
 
 process hmmscan_targets {
-    clusterOptions "-g $groupRoot/hmmscan_targets -R 'rusage[scratch=${task.attempt * 5120}]'"
+    clusterOptions "-g $params.groupRoot/hmmscan_targets -R 'rusage[scratch=${task.attempt * 5120}]'"
     errorStrategy "retry"
     maxRetries 4
     memory { 6.GB * task.attempt }
@@ -424,7 +424,7 @@ iseq_output_ch
     .set { iseq_results_ch }
 
 process merge_iseq_chunks {
-    clusterOptions "-g $groupRoot/merge_iseq_chunks"
+    clusterOptions "-g $params.groupRoot/merge_iseq_chunks"
     publishDir params.outputDir, mode:"copy", overwrite: true, saveAs: { name -> "iseq_scan_targets/$name" }
 
     input:
