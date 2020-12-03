@@ -342,7 +342,7 @@ process iseq_scan_targets {
     clusterOptions "-g $params.groupRoot/iseq_scan_targets -R 'rusage[scratch=${task.attempt * 5120}]'"
     errorStrategy "retry"
     maxRetries 4
-    memory { 8.GB * task.attempt }
+    memory { 16.GB * task.attempt }
     publishDir params.outputDir, mode:"copy", saveAs: { name -> "iseq_scan_targets/chunks/$name" }
     scratch true
     stageInMode "copy"
